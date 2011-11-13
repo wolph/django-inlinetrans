@@ -110,26 +110,26 @@ def do_restart(request):
             except OSError:
                 pass
 
-        reload_method = get_auto_reload_method()
-        reload_log = get_auto_reload_log()
+        #reload_method = get_auto_reload_method()
+        #reload_log = get_auto_reload_log()
         reload_time = get_auto_reload_time()
-        command = "echo no script"
-        if reload_method == 'test':
-            command = 'touch settings.py'
-        ## No RedHAT or similars
-        elif reload_method == 'apache2':
-            command = 'sudo apache2ctl restart'
-        ## RedHAT, CentOS
-        elif reload_method == 'httpd':
-            command = 'sudo service httpd restart'
+        #command = "echo no script"
+        #if reload_method == 'test':
+        #    command = 'touch settings.py'
+        ### No RedHAT or similars
+        #elif reload_method == 'apache2':
+        #    command = 'sudo apache2ctl restart'
+        ### RedHAT, CentOS
+        #elif reload_method == 'httpd':
+        #    command = 'sudo service httpd restart'
 
-        elif reload_method.startswith('restart_script'):
-            command = ' '.join(reload_method.split(" ")[1:])
-        if os.path.exists(os.path.dirname(reload_log)):
-            os.system("sleep 2 && %s &> %s & " % (command, reload_log))
-        else:
-            print 'The AUTO_RELOAD_LOG directory do not exist'  # Just in case our stdout is logged somewhere
-            os.system("sleep 2 && %s & " % command)
+        #elif reload_method.startswith('restart_script'):
+        #    command = ' '.join(reload_method.split(" ")[1:])
+        #if os.path.exists(os.path.dirname(reload_log)):
+        #    os.system("sleep 2 && %s &> %s & " % (command, reload_log))
+        #else:
+        #    print 'The AUTO_RELOAD_LOG directory do not exist'  # Just in case our stdout is logged somewhere
+        #    os.system("sleep 2 && %s & " % command)
 
         return render_to_response('inlinetrans/response.html',
                                   {'message': reload_time},
