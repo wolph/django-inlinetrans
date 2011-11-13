@@ -101,6 +101,15 @@ def do_restart(request):
     * "restart_script <script_path_name>"
     """
     if request.user.is_staff:
+        if int(request.environ.get('mod_wsgi.script_reloading', '0')) and \
+                request.environ.has_key('mod_wsgi.process_group') and \
+                request.environ.get('mod_wsgi.process_group',None) and \
+                request.environ.has_key('SCRIPT_FILENAME'):
+            try:
+                os.utime(request.environ.get('SCRIPT_FILENAME'), None)
+            except OSError:
+                pass
+
         reload_method = get_auto_reload_method()
         reload_log = get_auto_reload_log()
         reload_time = get_auto_reload_time()
