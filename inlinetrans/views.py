@@ -84,14 +84,6 @@ def set_new_translation(request):
     return HttpResponse(simplejson.dumps(result), mimetype='text/plain')
 
 
-def inline_demo(request):
-    """
-    """
-    return render_to_response('inlinetrans/inline_demo.html',
-                              {'INLINETRANS_MEDIA_URL': settings.MEDIA_URL + 'inlinetrans/'},
-                              context_instance=RequestContext(request))
-
-
 def do_restart(request):
     """
     * "test" for a django instance (this do a touch over settings.py for reload)
