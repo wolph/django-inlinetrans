@@ -21,8 +21,13 @@ def set_new_translation(request):
     Post to include a new translation for a msgid
     """
 
-    if not request.user.is_staff:
+    internal_ip = request.META['REMOTE_ADDR'] in settings.INTERNAL_IPS
+    anon = request.user.is_anonymous()
+    is_staff = request.user.is_staff
+
+    if not (is_staff or (internal_ip and anon)):
         return HttpResponseForbidden(_('You have no permission to update translation catalogs'))
+
     if not request.POST:
         return HttpResponseBadRequest(render_to_response('inlinetrans/response.html',
                                       {'message': _('Invalid request method')},
