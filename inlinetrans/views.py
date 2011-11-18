@@ -13,8 +13,21 @@ import inlinetrans
 from inlinetrans.management.commands.inline_makemessages import make_messages
 from inlinetrans.polib import pofile
 from inlinetrans.utils import validate_format, find_pos
-from inlinetrans.settings import get_auto_reload_method, get_auto_reload_log, get_auto_reload_time
+from inlinetrans.settings import get_auto_reload_time
 
+def find_po(lang, msgid, include_djangos=False):
+    pos = find_pos(lang, include_djangos=True)
+    entries = [(None, None, None)]
+    if pos:
+        for file_po in pos:
+            candidate = pofile(file_po)
+            poentry = candidate.find(msgid)
+            if poentry:
+                entries.append((file_po, candidate, poentry))
+                if candidate:
+                    break
+
+    return entries[-1]
 
 def set_new_translation(request):
     """
@@ -49,43 +62,40 @@ def set_new_translation(request):
             locale_path = os.path.dirname(os.path.normpath(os.sys.modules[settings.SETTINGS_MODULE].__file__))
             make_messages(lang, extensions=['.html'], root_path=root_path, locale_path=locale_path)
 
-        pos = find_pos(lang, include_djangos=True)
-        if pos:
-            for file_po in pos:
-                candidate = pofile(file_po)
-                poentry = candidate.find(msgid)
-                if poentry:
-                    selected_pofile = candidate
-                    poentry.msgstr = msgstr
-                    if 'fuzzy' in poentry.flags:
-                        poentry.flags.remove('fuzzy')
-                    po_filename = file_po
-                    break
-            # We can not find the msgid in any of the catalogs
-            if not selected_pofile:
-                result['message'] = _('"%(msgid)s" not found in any catalog' % {'msgid': msgid})
-                if retry == 'false':
-                    result['question'] = _('Do you want to update the catalog (this could take longer) and try again?')
-                return HttpResponse(simplejson.dumps(result), mimetype='text/plain')
+        file_po, selected_pofile, poentry = find_po(lang, msgid,
+            include_djangos=True)
 
-            format_errors = validate_format(selected_pofile)
-            if format_errors:
-                result['message'] = format_errors
-                return HttpResponse(simplejson.dumps(result), mimetype='text/plain')
+        if poentry:
+            poentry.msgstr = msgstr
+            if 'fuzzy' in poentry.flags:
+                poentry.flags.remove('fuzzy')
+            po_filename = file_po
 
-            if poentry and not format_errors:
-                try:
-                    selected_pofile.metadata['Last-Translator'] = smart_str("%s %s <%s>" % (request.user.first_name, request.user.last_name, request.user.email))
-                    selected_pofile.metadata['X-Translated-Using'] = smart_str("inlinetrans %s" % inlinetrans.get_version(False))
-                    selected_pofile.metadata['PO-Revision-Date'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M%z')
-                except UnicodeDecodeError:
-                    pass
-                selected_pofile.save()
-                selected_pofile.save_as_mofile(po_filename.replace('.po', '.mo'))
-                result['errors'] = False
-                result['message'] = _('Catalog updated successfully')
-            elif not poentry:
-                result['message'] = _('PO entry not found')
+        # We can not find the msgid in any of the catalogs
+        elif not selected_pofile:
+            result['message'] = _('"%(msgid)s" not found in any catalog' % {'msgid': msgid})
+            if retry == 'false':
+                result['question'] = _('Do you want to update the catalog (this could take longer) and try again?')
+            return HttpResponse(simplejson.dumps(result), mimetype='text/plain')
+
+        format_errors = validate_format(selected_pofile)
+        if format_errors:
+            result['message'] = format_errors
+            return HttpResponse(simplejson.dumps(result), mimetype='text/plain')
+
+        if poentry and not format_errors:
+            try:
+                selected_pofile.metadata['Last-Translator'] = smart_str("%s %s <%s>" % (request.user.first_name, request.user.last_name, request.user.email))
+                selected_pofile.metadata['X-Translated-Using'] = smart_str("inlinetrans %s" % inlinetrans.get_version(False))
+                selected_pofile.metadata['PO-Revision-Date'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M%z')
+            except UnicodeDecodeError:
+                pass
+            selected_pofile.save()
+            selected_pofile.save_as_mofile(po_filename.replace('.po', '.mo'))
+            result['errors'] = False
+            result['message'] = _('Catalog updated successfully')
+        elif not poentry:
+            result['message'] = _('PO entry not found')
     return HttpResponse(simplejson.dumps(result), mimetype='text/plain')
 
 
@@ -133,3 +143,4 @@ def do_restart(request):
                                   context_instance=RequestContext(request))
 
 #    return HttpResponseRedirect(request.environ['HTTP_REFERER'])
+

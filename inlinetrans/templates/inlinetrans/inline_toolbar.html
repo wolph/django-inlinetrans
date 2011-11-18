@@ -1,17 +1,21 @@
+<<<<<<< Updated upstream
 {% load i18n %}{% if is_staff %}
 {% django %}
+=======
+{% load i18n inlinetrans %}{% if is_staff %}
+>>>>>>> Stashed changes
 
 <script language="javascript">
 (function ($) {
   $(document).ready(function () {
     var messages_dict = {
-       givetranslationfor: '{% trans "Give a new translation for " %} "{0}" {% trans "to" %} {{ language }}',
-       emptytranslation: "{% trans "You're sending an empty translation ¿Are you sure? " %}",
-       reloading: "{% trans "Reloading" %}",
-       apply_changes: "{% trans "Apply changes" %}",
-       applying_changes: "{% trans "Applying changes" %}",
-       error_cant_send: "{% trans "Can't send translation" %}",
-       error_cant_restart: "{% trans "Can't restart server" %}"
+       givetranslationfor: '{% inline_trans "Give a new translation for " %} "{0}" {% inline_trans "to" %} {{ language }}',
+       emptytranslation: "{% inline_trans "You're sending an empty translation ¿Are you sure? " %}",
+       reloading: "{% inline_trans "Reloading" %}",
+       apply_changes: "{% inline_trans "Apply changes" %}",
+       applying_changes: "{% inline_trans "Applying changes" %}",
+       error_cant_send: "{% inline_trans "Can't send translation" %}",
+       error_cant_restart: "{% inline_trans "Can't restart server" %}"
 
     };
     var new_translation_url = "{% url inlinetrans.views.set_new_translation %}";
@@ -21,9 +25,9 @@
         <div class="inlinetransContainer">\
             <img id="changes-loading" src="{{ INLINETRANS_MEDIA_URL }}img/ajax-loader-transparent.gif"/>\
             <span class="inlinetransActions">\
-                <span class="inlinetransAction hightlightTrans">{% trans "See translatable items" %}</span>\
-                <span class="inlinetransAction hightlightNotrans">{% trans "See non translated items" %}</span>\
-                <span class="inlinetransAction restartServer">{% trans "Apply changes" %}</span>\
+                <span class="inlinetransAction hightlightTrans">{% inline_trans "See translatable items" %}</span>\
+                <span class="inlinetransAction hightlightNotrans">{% inline_trans "See non translated items" %}</span>\
+                <span class="inlinetransAction restartServer">{% inline_trans "Apply changes" %}</span>\
             </span>\
         </div>';
     // init inlinetrans toolbar

@@ -1,6 +1,5 @@
 CHANGES.txt
 CONTRIBUTORS.txt
-README.txt
 setup.cfg
 setup.py
 django_inlinetrans.egg-info/PKG-INFO

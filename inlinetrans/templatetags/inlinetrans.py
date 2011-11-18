@@ -94,7 +94,7 @@ def inline_trans(parser, token):
     return InlineTranslateNode(parser.compile_filter(value), noop)
 
 register.tag('inline_trans', inline_trans)
-register.tag('itrans', inline_trans)
+register.tag('trans', inline_trans)
 
 
 @register.inclusion_tag('inlinetrans/inline_header.html', takes_context=True)
@@ -131,3 +131,4 @@ def inlinetrans_toolbar(context, node_id):
             'request': context['request'],
         })
     return tag_context
+
