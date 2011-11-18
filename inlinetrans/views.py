@@ -16,7 +16,7 @@ from inlinetrans.utils import validate_format, find_pos
 from inlinetrans.settings import get_auto_reload_time
 
 def find_po(lang, msgid, include_djangos=False):
-    pos = find_pos(lang, include_djangos=True)
+    pos = find_pos(lang, include_djangos=include_djangos)
     entries = [(None, None, None)]
     if pos:
         for file_po in pos:
